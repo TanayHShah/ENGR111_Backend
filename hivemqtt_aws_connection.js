@@ -29,7 +29,6 @@ const client = mqtt.connect('mqtt://98db5050a791439c98eac188febfecbe.s2.eu.hivem
 
 // Connect to MQTT broker
 client.on('connect', () => {
-    console.log('Connected to MQTT broker');
     // Subscribe to all topics using the # wildcard
     client.subscribe('#');
 });
@@ -44,19 +43,18 @@ client.on('message', (topic, message) => {
     const params = {
         TableName: 'engr111_data_collection',
         Item: {
-            id: newObjectId.toString(),
-            topic: topic,
-            payload: message.toString(),
-            timestamp: new Date(),
+            id: {S: newObjectId.toString()},
+            topic: {S: topic},
+            payload: {S: message.toString()},
+            timestamp: {S: new Date()},
         },
     };
 
 
-    // dynamoDB.send(new PutItemCommand(params))
-    //     .then(() => {
-    //         console.log('Data uploaded to DynamoDB');
-    //     })
-    //     .catch((err) => {
-    //         console.error('Error uploading to DynamoDB:', err);
-    //     });
+    dynamoDB.send(new PutItemCommand(params))
+        .then(() => {
+        })
+        .catch((err) => {
+            console.error('Error uploading to DynamoDB:', err);
+        });
 });
