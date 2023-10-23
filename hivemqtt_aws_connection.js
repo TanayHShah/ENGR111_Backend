@@ -1,7 +1,9 @@
+
 const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const mqtt = require('mqtt');
 const { uuid } = require('unique-string-generator');
-const { ObjectId } = require('mongodb');
+const { ObjectId, Int32 } = require('mongodb');
+
 
 // AWS DynamoDB configuration
 const dynamoDBConfig = {
@@ -15,7 +17,7 @@ const dynamoDBConfig = {
 const dynamoDB = new DynamoDBClient(dynamoDBConfig);
 
 const tlsOptions = {
-    rejectUnauthorized: false, 
+    rejectUnauthorized: false,
 };
 
 
@@ -40,13 +42,15 @@ client.on('error', (err) => {
 client.on('message', (topic, message) => {
     // Process the received message and upload it to DynamoDB
     const newObjectId = new ObjectId();
+    timestamp = Math.floor((new Date()).getTime() / 1000)
+
     const params = {
         TableName: 'engr111_data_collection',
         Item: {
-            id: {S: newObjectId.toString()},
-            topic: {S: topic},
-            payload: {S: message.toString()},
-            timestamp: {S: new Date()},
+            id: { S: newObjectId.toString() },
+            topic: { S: topic },
+            payload: { S: message.toString() },
+            timestamp: {'N': String(timestamp)},
         },
     };
 
